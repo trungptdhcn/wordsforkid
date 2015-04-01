@@ -1,0 +1,18 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context="com.trungpt.wordsforkid.MainMenuScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_school"
+        android:gravity="center"
+        >
+    <ListView
+            android:id="@+id/main_menu_screen_lvListLevel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center"
+            >
+    </ListView>
+</LinearLayout>
