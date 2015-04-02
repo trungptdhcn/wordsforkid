@@ -16,7 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import com.lorentzos.flingswipe.SwipeFlingAdapterView;
+import android.widget.Toast;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -31,17 +31,13 @@ import com.trungpt.wordsforkid.ui.adapter.ViewPagerAdapter;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 public class MainActivity extends Activity
 {
     private ImageButton ivTakePhoto;
     ImageView ivPicture;
-    //    ViewPager viewPager;
-//    PagerAdapter pagerAdapter;
     SwipeFlingAdapter adapter;
     public static int REQUEST_IMAGE_CAPTURE = 111;
     Uri uriSavedImage;
@@ -50,6 +46,8 @@ public class MainActivity extends Activity
     List<WordEntity> wordEntityList;
     DisplayImageOptions options;
     EditText editTextWord;
+    ImageButton btNext;
+    ImageButton btBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,13 +55,26 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dataHelper = new DatabaseHelper(this);
-//        viewPager = (ViewPager) findViewById(R.id.pager);
         level = getIntent().getExtras().getInt("level");
         ivTakePhoto = (ImageButton) findViewById(R.id.imbTakePhoto);
         editTextWord = (EditText) findViewById(R.id.activity_main_edtWord);
         ivPicture = (ImageView) findViewById(R.id.activity_main_ivPicture);
+        btNext = (ImageButton) findViewById(R.id.activity_main_edtNext);
+        btBack = (ImageButton) findViewById(R.id.activity_main_edtBack);
+        final Display display = getWindowManager().getDefaultDisplay();
+        final int width = display.getWidth();  // deprecated
+        final int height = display.getHeight();
+        Bitmap bitmapDefaultDes;
         final Bitmap bmpDefault = ((BitmapDrawable) this.getResources().getDrawable(R.drawable.image_not_found)).getBitmap();
-        ivPicture.setImageBitmap(bmpDefault);
+        if (width < height)
+        {
+            bitmapDefaultDes = Utils.scaleCenterCrop(bmpDefault, height / 2, width);
+        }
+        else
+        {
+            bitmapDefaultDes = Utils.scaleCenterCrop(bmpDefault, width / 2, height);
+        }
+        ivPicture.setImageBitmap(bitmapDefaultDes);
         wordEntityList = new ArrayList<>();
         new DisplayImageOptions.Builder()
                 .showImageOnLoading(0)
@@ -86,24 +97,15 @@ public class MainActivity extends Activity
             e.printStackTrace();
         }
         Collections.shuffle(wordEntityList);
-        editTextWord.setText(wordEntityList.get(0).getWord());
-//        pagerAdapter = new ViewPagerAdapter(this, wordEntityList);
-//        viewPager.setAdapter(pagerAdapter);
-//        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener()
-//        {
-//            public void onPageScrollStateChanged(int state)
-//            {
-//            }
-//
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-//            {
-//            }
-//
-//            public void onPageSelected(int position)
-//            {
-//                ivPicture.setImageBitmap(bmpDefault);
-//            }
-//        });
+        final Map<String, WordEntity> mapWords = new LinkedHashMap<>();
+        for (WordEntity wordEntity : wordEntityList)
+        {
+            mapWords.put(wordEntity.getWord(), wordEntity);
+        }
+        if (mapWords != null && mapWords.size() > 0)
+        {
+            editTextWord.setText(wordEntityList.get(0).getWord());
+        }
         ivTakePhoto.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -126,21 +128,26 @@ public class MainActivity extends Activity
             @Override
             public void onClick(View v)
             {
-//                int position = viewPager.getCurrentItem();
-//                Bitmap bmp = ImageLoader.getInstance().loadImageSync(wordEntityList.get(position).getUrl(), options);
-                Display display = getWindowManager().getDefaultDisplay();
-                int width = display.getWidth();  // deprecated
-                int height = display.getHeight();  // deprecated
+                WordEntity wordEntity = mapWords.get(editTextWord.getText().toString());
+                Bitmap bmp = ImageLoader.getInstance().loadImageSync(wordEntity.getUrl(), options);
                 Bitmap destBitmap;
-//                if (width < height)
-//                {
-//                    destBitmap = Utils.scaleCenterCrop(bmp, height / 2, width);
-//                }
-//                else
-//                {
-//                    destBitmap = Utils.scaleCenterCrop(bmp, width / 2, height);
-//                }
-//                ivPicture.setImageBitmap(destBitmap);
+                if (width < height)
+                {
+                    destBitmap = Utils.scaleCenterCrop(bmp, height / 2, width);
+                }
+                else
+                {
+                    destBitmap = Utils.scaleCenterCrop(bmp, width / 2, height);
+                }
+                ivPicture.setImageBitmap(destBitmap);
+            }
+        });
+        btNext.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                WordEntity wordEntity = mapWords.
             }
         });
     }
